@@ -45,7 +45,7 @@ def test_retrieve_valid(api_client):
 
 
 @pytest.mark.django_db
-def test_update(api_client):
+def test_update_valid(api_client):
     dados_categoria = {"nome": "Categoria A"}
     novosDados = {"nome": "Categoria B"}
     resp = api_client.post(reverse("categoria-list"), dados_categoria)
@@ -53,6 +53,17 @@ def test_update(api_client):
 
     assert endResp.status_code == status.HTTP_200_OK
     assert Categoria.objects.get(pk=resp.data["id"]).nome == novosDados["nome"]
+
+
+@pytest.mark.django_db
+def test_update_invalid(api_client):
+    dados_categoria = {"nome": "Categoria A"}
+    novosDados = {}
+    resp = api_client.post(reverse("categoria-list"), dados_categoria)
+    endResp = api_client.put(reverse("categoria-detail", args=[resp.data["id"]]), novosDados)
+
+    assert endResp.status_code == status.HTTP_400_BAD_REQUEST
+    assert Categoria.objects.get(pk=resp.data["id"]).nome == dados_categoria["nome"]
 
 
 @pytest.mark.django_db
